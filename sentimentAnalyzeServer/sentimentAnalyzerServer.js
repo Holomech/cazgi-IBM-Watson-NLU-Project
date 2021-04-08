@@ -6,7 +6,7 @@ function getNLUInstance() {
     let api_key = process.env.API_KEY;
     let api_url = process.env.API_URL;
 
-    const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understatnding/v1');
+    const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
     const {IamAuthenticator} = require('ibm-watson/auth');
 
     const NaturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
@@ -31,8 +31,15 @@ app.get("/",(req,res)=>{
   });
 
 app.get("/url/emotion", (req,res) => {
-
-    return res.send({"happy":"90","sad":"10"});
+    const analyzeParams = {'url': `${req.query.url}`, 'features': {'emotion': {}}};
+    const nlu = getNLUInstance();
+    nlu.analyze(analyzeParams)
+        .then(results => {
+            return res.send(results['result']['emotion']['document']['emotion']);
+        })
+        .catch(err => {
+            console.log('error: ', err);
+        });
 });
 
 app.get("/url/sentiment", (req,res) => {
@@ -40,7 +47,15 @@ app.get("/url/sentiment", (req,res) => {
 });
 
 app.get("/text/emotion", (req,res) => {
-    return res.send({"happy":"10","sad":"90"});
+    const analyzeParams = {'text': `${req.query.text}`, 'features': {'emotion': {}}};
+    const nlu = getNLUInstance();
+    nlu.analyze(analyzeParams)
+        .then(results => {
+            return res.send(results['result']['emotion']['document']['emotion']);
+        })
+        .catch(err => {
+            console.log('error: ', err);
+        });
 });
 
 app.get("/text/sentiment", (req,res) => {
